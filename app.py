@@ -9,7 +9,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # ============================================================================
-# PAGE CONFIG & MODERN CLEAN LIGHT THEME
+# PAGE CONFIG & SLEEK BLACK THEME
 # ============================================================================
 st.set_page_config(
     page_title="HPA Gene Expression Explorer",
@@ -18,53 +18,54 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for crisp, executive-grade light UI
+# Custom CSS for Sleek Dark/Black UI with polished panels & tags
 st.markdown("""
 <style>
     /* Main Background */
     .stApp {
-        background-color: #f8fafc;
-        color: #0f172a;
+        background-color: #090a0f;
+        color: #f1f5f9;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
     /* Header Card */
     .header-container {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: #12151e;
+        border: 1px solid #1e2638;
         padding: 2rem 2.5rem;
         border-radius: 16px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
     .header-title {
         font-size: 2.2rem;
         font-weight: 800;
-        color: #0f172a;
+        color: #ffffff;
         letter-spacing: -0.5px;
         margin-bottom: 0.3rem;
     }
     .header-subtitle {
         font-size: 0.95rem;
-        color: #64748b;
+        color: #94a3b8;
     }
     
     /* Expander / Filter Panel Fixes */
     div[data-testid="stExpander"] {
-        background: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
+        background: #12151e !important;
+        border: 1px solid #1e2638 !important;
         border-radius: 14px !important;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
     }
     div[data-testid="stExpander"] summary {
-        color: #0f172a !important;
+        color: #ffffff !important;
         font-weight: 700 !important;
     }
     
     /* Custom Styling for Select Chips */
     span[data-baseweb="tag"] {
-        background-color: #e0e7ff !important;
-        color: #3730a3 !important;
+        background-color: #1e293b !important;
+        color: #38bdf8 !important;
+        border: 1px solid #334155 !important;
         border-radius: 6px !important;
         font-weight: 600 !important;
     }
@@ -72,50 +73,51 @@ st.markdown("""
     /* Navigation Tabs */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background: #e2e8f0;
+        background: #12151e;
         padding: 6px;
         border-radius: 12px;
+        border: 1px solid #1e2638;
     }
     .stTabs [data-baseweb="tab"] {
         background: transparent;
         border-radius: 8px;
-        color: #475569;
+        color: #94a3b8;
         font-weight: 600;
         padding: 10px 22px;
         border: none !important;
         transition: all 0.2s ease;
     }
     .stTabs [aria-selected="true"] [data-baseweb="tab"] {
-        background: #4f46e5 !important;
+        background: #0284c7 !important;
         color: #ffffff !important;
         font-weight: 700;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
     }
     
     /* Metric Cards */
     .metric-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: #12151e;
+        border: 1px solid #1e2638;
         border-radius: 14px;
         padding: 20px;
         text-align: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         transition: all 0.2s ease;
     }
     .metric-card:hover {
-        border-color: #6366f1;
+        border-color: #0284c7;
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.08);
+        box-shadow: 0 8px 25px rgba(2, 132, 199, 0.15);
     }
     .metric-value {
         font-size: 2.3rem;
         font-weight: 800;
-        color: #4f46e5;
+        color: #38bdf8;
         margin: 6px 0;
     }
     .metric-label {
         font-size: 0.78rem;
-        color: #64748b;
+        color: #94a3b8;
         text-transform: uppercase;
         letter-spacing: 1.2px;
         font-weight: 700;
@@ -123,15 +125,15 @@ st.markdown("""
     
     /* Chart Containers */
     .chart-container {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: #12151e;
+        border: 1px solid #1e2638;
         border-radius: 14px;
         padding: 20px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
     .chart-title {
-        color: #0f172a;
+        color: #ffffff;
         font-size: 1.1rem;
         font-weight: 700;
         margin-bottom: 12px;
@@ -139,7 +141,7 @@ st.markdown("""
     
     /* Primary Buttons */
     .stButton > button {
-        background: #4f46e5;
+        background: #0284c7;
         color: #ffffff;
         border: none;
         border-radius: 8px;
@@ -148,8 +150,8 @@ st.markdown("""
         transition: all 0.2s ease;
     }
     .stButton > button:hover {
-        background: #4338ca;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        background: #0369a1;
+        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -178,9 +180,7 @@ def load_hpa_data():
         if data.empty:
             return None, f"File '{target_file.name}' was found, but it contains 0 rows/data."
         
-        # Standardize column names
         data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
-        
         return data, target_file.name
     
     except Exception as e:
@@ -198,7 +198,7 @@ def create_metric_card(label, value, subtext=""):
     <div class="metric-card">
         <div class="metric-label">{label}</div>
         <div class="metric-value">{value:,.0f}</div>
-        <div style="font-size: 0.8rem; color: #64748b;">{subtext}</div>
+        <div style="font-size: 0.8rem; color: #94a3b8;">{subtext}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -313,13 +313,13 @@ with tab1:
             fig = px.histogram(
                 data[numeric_cols].values.flatten(),
                 nbins=25,
-                color_discrete_sequence=['#4f46e5'],
+                color_discrete_sequence=['#38bdf8'],
                 labels={'value': 'Expression Level', 'count': 'Frequency'}
             )
             fig.update_layout(
-                template='plotly_white',
+                template='plotly_dark',
                 height=350,
-                font=dict(color="#0f172a", family="Inter"),
+                font=dict(color="#f1f5f9", family="Inter"),
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
                 showlegend=False,
@@ -374,13 +374,13 @@ with tab2:
                     title=f"Expression Intensity: {gene_search}",
                     labels={'x': 'Sample', 'y': 'Expression (nTPM)'},
                     color=matches.iloc[0][numeric_cols].values,
-                    color_continuous_scale='Viridis'
+                    color_continuous_scale='Turbo'
                 )
                 
                 fig.update_layout(
-                    template='plotly_white',
+                    template='plotly_dark',
                     height=420,
-                    font=dict(color="#0f172a", family="Inter"),
+                    font=dict(color="#f1f5f9", family="Inter"),
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
                     xaxis_tickangle=-45
@@ -411,13 +411,13 @@ with tab3:
             y='Expression',
             title="Top Expressed Genes",
             color='Expression',
-            color_continuous_scale='Cividis'
+            color_continuous_scale='Plasma'
         )
         
         fig.update_layout(
-            template='plotly_white',
+            template='plotly_dark',
             height=420,
-            font=dict(color="#0f172a", family="Inter"),
+            font=dict(color="#f1f5f9", family="Inter"),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
             xaxis_tickangle=-45
@@ -443,7 +443,7 @@ with tab4:
         if genes_to_compare:
             fig = go.Figure()
             
-            colors = ['#4f46e5', '#e11d48', '#059669', '#d97706', '#9333ea']
+            colors = ['#38bdf8', '#f43f5e', '#34d399', '#fbbf24', '#c084fc']
             
             for idx, gene in enumerate(genes_to_compare):
                 gene_data = data[data.iloc[:, 0].astype(str) == gene]
@@ -461,9 +461,9 @@ with tab4:
                 title="Gene Expression Dynamics Across Samples",
                 xaxis_title="Sample",
                 yaxis_title="Expression (nTPM)",
-                template='plotly_white',
+                template='plotly_dark',
                 height=480,
-                font=dict(color="#0f172a", family="Inter"),
+                font=dict(color="#f1f5f9", family="Inter"),
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
                 hovermode='x unified'
@@ -536,7 +536,7 @@ with tab5:
 # FOOTER
 # ============================================================================
 st.markdown("""
-<div style='text-align: center; color: #94a3b8; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;'>
+<div style='text-align: center; color: #64748b; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #1e2638;'>
     <small>🧬 Human Protein Atlas (HPA) Gene Expression Explorer | Built with Streamlit & Plotly</small>
 </div>
 """, unsafe_allow_html=True)
