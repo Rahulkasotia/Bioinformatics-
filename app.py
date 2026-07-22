@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Pure Black/White UI Matching
+# Custom CSS for Pure Black/White UI & Custom Multi-select Focus Borders
 st.markdown("""
 <style>
     /* Main Background */
@@ -26,6 +26,15 @@ st.markdown("""
         background-color: #000000;
         color: #f8fafc;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    /* Change red borders/focus rings in multi-selects to clean white/gray */
+    div[data-baseweb="select"] > div {
+        border-color: #3f3f46 !important;
+    }
+    div[data-baseweb="select"] div:focus, div[data-baseweb="select"] div:active {
+        border-color: #ffffff !important;
+        box-shadow: 0 0 0 1px #ffffff !important;
     }
     
     /* Header Card */
@@ -146,7 +155,7 @@ st.markdown("""
         border: none;
         border-radius: 8px;
         font-weight: 800;
-        padding: 10px 24px;
+        padding: 8px 16px;
         transition: all 0.2s ease;
     }
     .stButton > button:hover {
@@ -214,41 +223,74 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# INTERACTIVE GLOBAL FILTER PANEL
+# INTERACTIVE GLOBAL FILTER PANEL WITH SELECT/DESELECT ALL & RESET
 # ============================================================================
-with st.expander("🔍 **Global Filter Controls**", expanded=True):
+all_genes = sorted(raw_data.iloc[:, 0].unique().astype(str)) if len(raw_data) > 0 else []
+numeric_cols_all = raw_data.select_dtypes(include=[np.number]).columns.tolist()
+
+# Initialize session state for filters if not present
+if 'select_all_genes_state' not in st.session_state:
+    st.session_state.select_all_genes_state = False
+if 'select_all_samples_state' not in st.session_state:
+    st.session_state.select_all_samples_state = False
+
+with st.expander("🔍 **Global Filter Controls & Reset**", expanded=True):
     filter_cols = st.columns(4)
     
-    all_genes = sorted(raw_data.iloc[:, 0].unique().astype(str)) if len(raw_data) > 0 else []
-    numeric_cols_all = raw_data.select_dtypes(include=[np.number]).columns.tolist()
-    
     with filter_cols[0]:
+        st.markdown("**🧬 Filter Genes**")
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            if st.button("Select All", key="all_genes_btn"):
+                st.session_state.gene_filter = all_genes
+        with col_g2:
+            if st.button("Clear All", key="clear_genes_btn"):
+                st.session_state.gene_filter = []
+                
         selected_genes = st.multiselect(
-            "🧬 Filter Genes",
+            "Select specific genes:",
             options=all_genes,
             default=all_genes[:5] if len(all_genes) >= 5 else all_genes,
-            key="gene_filter"
+            key="gene_filter",
+            label_visibility="collapsed"
         )
     
     with filter_cols[1]:
+        st.markdown("**🧫 Filter Samples**")
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            if st.button("Select All", key="all_samples_btn"):
+                st.session_state.sample_filter = numeric_cols_all
+        with col_s2:
+            if st.button("Clear All", key="clear_samples_btn"):
+                st.session_state.sample_filter = []
+                
         selected_samples = st.multiselect(
-            "🧫 Filter Samples / Columns",
+            "Select specific samples:",
             options=numeric_cols_all,
             default=numeric_cols_all[:10] if len(numeric_cols_all) >= 10 else numeric_cols_all,
-            key="sample_filter"
+            key="sample_filter",
+            label_visibility="collapsed"
         )
     
     with filter_cols[2]:
+        st.markdown("**📈 Min Expression**")
         min_expression = st.slider(
-            "📈 Min Expression Value",
+            "Min Expression Value",
             float(0.0), 
             float(raw_data[numeric_cols_all].max().max() if numeric_cols_all else 100.0), 
             float(0.0), 
-            0.5
+            0.5,
+            label_visibility="collapsed"
         )
     
     with filter_cols[3]:
-        st.success(f"✅ Active File: {status_msg}")
+        st.markdown("**⚡ Quick Actions**")
+        if st.button("🔄 Reset All Filters", use_container_width=True):
+            st.session_state.gene_filter = all_genes
+            st.session_state.sample_filter = numeric_cols_all
+            st.rerun()
+        st.caption(f"File: {status_msg}")
 
 # ============================================================================
 # APPLY FILTERS DYNAMICALLY TO DATASET
@@ -312,7 +354,6 @@ with tab1:
         if len(numeric_cols) > 0 and len(data) > 0:
             flat_vals = data[numeric_cols].values.flatten()
             
-            # Colorful multi-hued histogram utilizing Plotly marker coloring
             fig = px.histogram(
                 x=flat_vals,
                 nbins=25,
@@ -360,24 +401,25 @@ with tab2:
         search_type = st.radio("Search Type:", ["Exact Match", "Contains"], horizontal=True)
     
     if gene_search:
+        # Search against raw_data so user can find genes even if omitted from multi-select filters
         if search_type == "Exact Match":
-            matches = data[data.iloc[:, 0].astype(str) == gene_search]
+            matches = raw_data[raw_data.iloc[:, 0].astype(str) == gene_search]
         else:
-            matches = data[data.iloc[:, 0].astype(str).str.contains(gene_search, case=False, na=False)]
+            matches = raw_data[raw_data.iloc[:, 0].astype(str).str.contains(gene_search, case=False, na=False)]
         
         if len(matches) > 0:
             st.success(f"✅ Found {len(matches)} gene(s) matching '{gene_search}'")
             
             st.markdown("#### Expression Intensity Profile")
             
-            if len(numeric_cols) > 0:
+            if len(numeric_cols_all) > 0:
                 fig = px.bar(
-                    x=numeric_cols,
-                    y=matches.iloc[0][numeric_cols].values,
+                    x=numeric_cols_all,
+                    y=matches.iloc[0][numeric_cols_all].values,
                     title=f"Expression Intensity: {gene_search}",
                     labels={'x': 'Sample', 'y': 'Expression (nTPM)'},
-                    color=matches.iloc[0][numeric_cols].values,
-                    color_continuous_scale='Rainbow'
+                    color=matches.iloc[0][numeric_cols_all].values,
+                    color_continuous_scale='Turbo'
                 )
                 
                 fig.update_layout(
@@ -394,7 +436,7 @@ with tab2:
             st.markdown("#### Tabular Expression Data")
             st.dataframe(matches, use_container_width=True)
         else:
-            st.warning(f"❌ No genes found matching '{gene_search}' in filtered dataset")
+            st.warning(f"❌ No genes found matching '{gene_search}' in dataset")
 
 # ======================= TAB 3: SAMPLE PROFILER =======================
 with tab3:
@@ -435,26 +477,26 @@ with tab4:
     st.markdown("### 🔄 Multi-Gene Comparative Profiling")
     st.write("Compare expression trajectories of selected genes across normal tissue vs cancer samples.")
     
-    if len(data) > 0 and len(numeric_cols) > 0:
-        available_genes = data.iloc[:, 0].unique().tolist()
+    if len(raw_data) > 0 and len(numeric_cols_all) > 0:
+        available_genes = raw_data.iloc[:, 0].unique().tolist()
         genes_to_compare = st.multiselect(
             "Select genes to compare from active dataset:",
             options=available_genes,
-            default=available_genes[:3] if len(available_genes) >= 3 else available_genes
+            default=available_genes[:3] if len(available_genes) >= 3 else available_genes,
+            key="comp_genes"
         )
         
         if genes_to_compare:
             fig = go.Figure()
             
-            # Vivid distinct neon-like colors for multi-line comparison
             colors = ['#00ffcc', '#ff007f', '#ffe600', '#00bfff', '#ff5500', '#bf00ff']
             
             for idx, gene in enumerate(genes_to_compare):
-                gene_data = data[data.iloc[:, 0].astype(str) == gene]
+                gene_data = raw_data[raw_data.iloc[:, 0].astype(str) == gene]
                 if len(gene_data) > 0:
                     fig.add_trace(go.Scatter(
-                        x=numeric_cols,
-                        y=gene_data.iloc[0][numeric_cols].values,
+                        x=numeric_cols_all,
+                        y=gene_data.iloc[0][numeric_cols_all].values,
                         mode='lines+markers',
                         name=gene,
                         marker=dict(size=8),
@@ -479,9 +521,9 @@ with tab4:
             
             comparison_stats = []
             for gene in genes_to_compare:
-                gene_data = data[data.iloc[:, 0].astype(str) == gene]
+                gene_data = raw_data[raw_data.iloc[:, 0].astype(str) == gene]
                 if len(gene_data) > 0:
-                    numeric_vals = gene_data.iloc[0][numeric_cols].values
+                    numeric_vals = gene_data.iloc[0][numeric_cols_all].values
                     comparison_stats.append({
                         'Gene': gene,
                         'Mean Expression': f"{numeric_vals.mean():.2f}",
