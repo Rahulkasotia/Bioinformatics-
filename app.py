@@ -124,12 +124,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# DATA LOADING (CLEANED OF CACHE REPLAY UI CALLS)
+# DATA LOADING
 # ============================================================================
 
 @st.cache_data
 def load_hpa_data():
-    """Dynamically find and load any Excel file in the working directory (pure data logic)"""
+    """Dynamically find and load any Excel file in the working directory"""
     try:
         search_dirs = [Path("."), Path("/mount/src")]
         excel_files = []
@@ -322,7 +322,6 @@ with tab2:
         search_type = st.radio("Search Type:", ["Exact Match", "Contains"], horizontal=True)
     
     if gene_search:
-        # Search in first column (assumed to be gene names)
         if search_type == "Exact Match":
             matches = data[data.iloc[:, 0].astype(str) == gene_search]
         else:
@@ -331,10 +330,8 @@ with tab2:
         if len(matches) > 0:
             st.success(f"✅ Found {len(matches)} gene(s) matching '{gene_search}'")
             
-            # Display gene details
             st.markdown("#### Gene Expression Details")
             
-            # Create visualization
             numeric_cols = matches.select_dtypes(include=[np.number]).columns
             if len(numeric_cols) > 0:
                 fig = px.bar(
@@ -357,7 +354,6 @@ with tab2:
                 
                 st.plotly_chart(fig, use_container_width=True)
             
-            # Show data table
             st.markdown("#### Full Expression Data")
             st.dataframe(matches, use_container_width=True)
         else:
@@ -368,7 +364,6 @@ with tab3:
     st.markdown("### 🧫 Cell Line / Sample Search")
     st.write("Browse and analyze expression data for specific cell lines or tissue samples.")
     
-    # Try to identify cell line column
     cell_line_col = None
     for col in data.columns:
         if 'cell' in col.lower() or 'cancer' in col.lower() or 'sample' in col.lower():
@@ -394,12 +389,11 @@ with tab3:
             with col2:
                 st.metric("Expression Samples", len(cell_line_data))
             
-            # Show top genes for this cell line
             st.markdown(f"#### Top Expressed Genes in {selected_cell_line}")
             
-            numeric_cols = data.select_dtypes(include=[np.number]).columns
-            if len(numeric_cols) > 0:
-                cell_line_expr = data.iloc[:, 1:].mean(axis=1) if data.shape[1] > 1 else data.iloc[:, 0]
+            numeric_data = data.select_dtypes(include=[np.number])
+            if not numeric_data.empty:
+                cell_line_expr = numeric_data.mean(axis=1)
                 top_genes = pd.DataFrame({
                     'Gene': data.iloc[:, 0],
                     'Expression': cell_line_expr
@@ -425,7 +419,35 @@ with tab3:
                 
                 st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("ℹ️ Cell line column not detected. Please check your data format.")
+        # Fallback if no specific 'cell' column exists: calculate top expressed genes overall
+        numeric_data = data.select_dtypes(include=[np.number])
+        if not numeric_data.empty:
+            st.markdown("#### Top Expressed Genes Overall")
+            cell_line_expr = numeric_data.mean(axis=1)
+            top_genes = pd.DataFrame({
+                'Gene': data.iloc[:, 0],
+                'Expression': cell_line_expr
+            }).nlargest(20, 'Expression')
+            
+            fig = px.bar(
+                top_genes,
+                x='Gene',
+                y='Expression',
+                title="Top 20 Expressed Genes Across Samples",
+                color='Expression',
+                color_continuous_scale='Viridis'
+            )
+            
+            fig.update_layout(
+                template='plotly_dark',
+                height=400,
+                font=dict(color="#e2e8f0"),
+                plot_bgcolor='rgba(15, 23, 42, 0.3)',
+                paper_bgcolor='rgba(0, 0, 0, 0)',
+                xaxis_tickangle=-45
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
 
 # ======================= TAB 4: COMPARE =======================
 with tab4:
@@ -445,7 +467,6 @@ with tab4:
         st.info("✅ Select 1-5 genes for best visualization")
     
     if genes_to_compare:
-        # Create comparison visualization
         numeric_cols = data.select_dtypes(include=[np.number]).columns
         
         if len(numeric_cols) > 0:
@@ -477,7 +498,6 @@ with tab4:
             
             st.plotly_chart(fig, use_container_width=True)
             
-            # Statistics table
             st.markdown("#### Comparison Statistics")
             
             comparison_stats = []
@@ -509,7 +529,6 @@ with tab5:
     with col2:
         ascending = st.checkbox("Ascending order", value=True)
     
-    # Display data
     display_data = data.sort_values(by=sort_by, ascending=ascending) if sort_by in data.columns else data
     
     st.dataframe(
@@ -518,7 +537,6 @@ with tab5:
         height=500
     )
     
-    # Download options
     col1, col2, col3 = st.columns(3)
     
     with col1:
