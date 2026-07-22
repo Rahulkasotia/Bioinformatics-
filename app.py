@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Sleek Black UI & Clean Multi-select Styling
+# Custom CSS for Pure Black/White UI & Clean Multi-select Styling
 st.markdown("""
 <style>
     /* Main Background */
@@ -224,65 +224,79 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# INTERACTIVE GLOBAL FILTER PANEL WITH INSIDE SELECT/DESELECT ALL & RESET
+# INTERACTIVE GLOBAL FILTER PANEL WITH SAFE SESSION STATE MANAGEMENT
 # ============================================================================
 all_genes = sorted(raw_data.iloc[:, 0].unique().astype(str)) if len(raw_data) > 0 else []
 numeric_cols_all = raw_data.select_dtypes(include=[np.number]).columns.tolist()
+
+# Initialize safe session state backing values
+if 'selected_genes_val' not in st.session_state:
+    st.session_state.selected_genes_val = all_genes[:5] if len(all_genes) >= 5 else all_genes
+if 'selected_samples_val' not in st.session_state:
+    st.session_state.selected_samples_val = numeric_cols_all[:10] if len(numeric_cols_all) >= 10 else numeric_cols_all
 
 with st.expander("🔍 **Global Filter Controls & Reset**", expanded=True):
     filter_cols = st.columns(4)
     
     with filter_cols[0]:
-        selected_genes = st.multiselect(
-            "🧬 Filter Genes",
-            options=all_genes,
-            default=all_genes[:5] if len(all_genes) >= 5 else all_genes,
-            key="gene_filter",
-            help="Type to search or select options."
-        )
+        st.markdown("**🧬 Filter Genes**")
         col_g1, col_g2 = st.columns(2)
         with col_g1:
             if st.button("Select All", key="all_genes_btn", use_container_width=True):
-                st.session_state.gene_filter = all_genes
+                st.session_state.selected_genes_val = all_genes
                 st.rerun()
         with col_g2:
             if st.button("Clear All", key="clear_genes_btn", use_container_width=True):
-                st.session_state.gene_filter = []
+                st.session_state.selected_genes_val = []
                 st.rerun()
+                
+        selected_genes = st.multiselect(
+            "Select specific genes:",
+            options=all_genes,
+            default=st.session_state.selected_genes_val,
+            key="gene_widget",
+            label_visibility="collapsed"
+        )
+        st.session_state.selected_genes_val = selected_genes
     
     with filter_cols[1]:
-        selected_samples = st.multiselect(
-            "🧫 Filter Samples",
-            options=numeric_cols_all,
-            default=numeric_cols_all[:10] if len(numeric_cols_all) >= 10 else numeric_cols_all,
-            key="sample_filter",
-            help="Type to search or select options."
-        )
+        st.markdown("**🧫 Filter Samples**")
         col_s1, col_s2 = st.columns(2)
         with col_s1:
             if st.button("Select All", key="all_samples_btn", use_container_width=True):
-                st.session_state.sample_filter = numeric_cols_all
+                st.session_state.selected_samples_val = numeric_cols_all
                 st.rerun()
         with col_s2:
             if st.button("Clear All", key="clear_samples_btn", use_container_width=True):
-                st.session_state.sample_filter = []
+                st.session_state.selected_samples_val = []
                 st.rerun()
+                
+        selected_samples = st.multiselect(
+            "Select specific samples:",
+            options=numeric_cols_all,
+            default=st.session_state.selected_samples_val,
+            key="sample_widget",
+            label_visibility="collapsed"
+        )
+        st.session_state.selected_samples_val = selected_samples
     
     with filter_cols[2]:
+        st.markdown("**📈 Min Expression**")
         min_expression = st.slider(
-            "📈 Min Expression Value",
+            "Min Expression Value",
             float(0.0), 
             float(raw_data[numeric_cols_all].max().max() if numeric_cols_all else 100.0), 
             float(0.0), 
-            0.5
+            0.5,
+            label_visibility="collapsed"
         )
     
     with filter_cols[3]:
         st.markdown("**⚡ Quick Actions**")
         st.write("") 
         if st.button("🔄 Reset All Filters", key="reset_all_btn", use_container_width=True):
-            st.session_state.gene_filter = all_genes
-            st.session_state.sample_filter = numeric_cols_all
+            st.session_state.selected_genes_val = all_genes
+            st.session_state.selected_samples_val = numeric_cols_all
             st.rerun()
 
 # ============================================================================
