@@ -132,11 +132,12 @@ def load_hpa_data():
     try:
         excel_file = 'Normal_Vs_Cancer_data.xlsx'
         
-        # Try to load from multiple possible locations
+        # Comprehensive path list for local and Streamlit Cloud environments
         possible_paths = [
             excel_file,
+            f'/mount/src/bioinformatics-/{excel_file}',
             f'/mount/src/biocia/{excel_file}',
-            f'./data/{excel_file}',
+            f'./{excel_file}',
             Path(excel_file)
         ]
         
@@ -144,9 +145,11 @@ def load_hpa_data():
         for path in possible_paths:
             try:
                 if Path(path).exists():
-                    data = pd.read_excel(path)
+                    # Explicitly use openpyxl engine to parse .xlsx
+                    data = pd.read_excel(path, engine='openpyxl')
                     break
-            except:
+            except Exception as e:
+                print(f"Failed path {path}: {e}")
                 continue
         
         if data is None:
@@ -157,12 +160,10 @@ def load_hpa_data():
         data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
         
         print(f"✅ Loaded Excel: {data.shape[0]:,} rows, {data.shape[1]} columns")
-        print(f"Columns: {list(data.columns)}")
         return data
     
     except Exception as e:
         st.error(f"❌ Error loading data: {str(e)}")
-        print(f"Error details: {e}")
         return None
 
 # Load data at startup
@@ -185,74 +186,6 @@ def create_metric_card(label, value, subtext=""):
         <div style="font-size: 0.8rem; color: #64748b;">{subtext}</div>
     </div>
     """, unsafe_allow_html=True)
-
-def create_comparison_chart(gene_data, gene_name):
-    """Create normal vs cancer comparison chart"""
-    if len(gene_data) == 0:
-        st.warning("No data available for this gene")
-        return None
-    
-    fig = go.Figure()
-    
-    # Find normal vs cancer samples
-    for tissue_type in gene_data['tissue_type'].unique() if 'tissue_type' in gene_data.columns else ['Normal', 'Cancer']:
-        subset = gene_data[gene_data.get('tissue_type', 'Normal') == tissue_type] if 'tissue_type' in gene_data.columns else gene_data
-        
-        if len(subset) > 0:
-            fig.add_trace(go.Bar(
-                x=subset.get('cell_line', subset.get('sample', ['Sample'])),
-                y=subset.iloc[:, -1],  # Last numeric column (expression)
-                name=tissue_type,
-                marker=dict(
-                    color='#10b981' if tissue_type == 'Normal' else '#f43f5e',
-                    opacity=0.8
-                )
-            ))
-    
-    fig.update_layout(
-        title=f"Expression Levels: {gene_name}",
-        xaxis_title="Sample",
-        yaxis_title="Expression (nTPM)",
-        barmode='group',
-        template='plotly_dark',
-        height=400,
-        font=dict(color="#e2e8f0"),
-        plot_bgcolor='rgba(15, 23, 42, 0.3)',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        hovermode='x unified'
-    )
-    
-    return fig
-
-def create_tissue_comparison(data):
-    """Compare expression across tissues"""
-    try:
-        # Group by tissue if possible
-        if 'tissue' in data.columns:
-            tissue_expr = data.groupby('tissue').iloc[:, -1].mean()
-            
-            fig = px.bar(
-                x=tissue_expr.index,
-                y=tissue_expr.values,
-                title="Average Expression by Tissue Type",
-                labels={'x': 'Tissue Type', 'y': 'Expression (nTPM)'},
-                color=tissue_expr.values,
-                color_continuous_scale='Viridis'
-            )
-            
-            fig.update_layout(
-                template='plotly_dark',
-                height=400,
-                font=dict(color="#e2e8f0"),
-                plot_bgcolor='rgba(15, 23, 42, 0.3)',
-                paper_bgcolor='rgba(0, 0, 0, 0)',
-            )
-            
-            return fig
-    except Exception as e:
-        print(f"Error creating tissue comparison: {e}")
-    
-    return None
 
 # ============================================================================
 # MAIN APP
@@ -355,7 +288,7 @@ with tab1:
         numeric_cols = data.select_dtypes(include=[np.number]).columns
         if len(numeric_cols) > 0:
             fig = px.histogram(
-                data[numeric_cols.iloc[0]],
+                data[numeric_cols[0]],
                 nbins=30,
                 title="",
                 labels={'value': 'Expression Level', 'count': 'Frequency'}
