@@ -9,7 +9,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # ============================================================================
-# PAGE CONFIG & SLEEK BLACK THEME
+# PAGE CONFIG & MONOCHROME BLACK & WHITE THEME
 # ============================================================================
 st.set_page_config(
     page_title="HPA Gene Expression Explorer",
@@ -18,24 +18,24 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Sleek Dark/Black UI with polished panels & tags
+# Custom CSS for Pure Black/White UI Matching
 st.markdown("""
 <style>
     /* Main Background */
     .stApp {
-        background-color: #090a0f;
-        color: #f1f5f9;
+        background-color: #000000;
+        color: #f8fafc;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
     /* Header Card */
     .header-container {
-        background: #12151e;
-        border: 1px solid #1e2638;
+        background: #0a0a0a;
+        border: 1px solid #262626;
         padding: 2rem 2.5rem;
         border-radius: 16px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
     }
     .header-title {
         font-size: 2.2rem;
@@ -46,15 +46,15 @@ st.markdown("""
     }
     .header-subtitle {
         font-size: 0.95rem;
-        color: #94a3b8;
+        color: #a1a1aa;
     }
     
     /* Expander / Filter Panel Fixes */
     div[data-testid="stExpander"] {
-        background: #12151e !important;
-        border: 1px solid #1e2638 !important;
+        background: #0a0a0a !important;
+        border: 1px solid #262626 !important;
         border-radius: 14px !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
     }
     div[data-testid="stExpander"] summary {
         color: #ffffff !important;
@@ -63,9 +63,9 @@ st.markdown("""
     
     /* Custom Styling for Select Chips */
     span[data-baseweb="tag"] {
-        background-color: #1e293b !important;
-        color: #38bdf8 !important;
-        border: 1px solid #334155 !important;
+        background-color: #27272a !important;
+        color: #ffffff !important;
+        border: 1px solid #3f3f46 !important;
         border-radius: 6px !important;
         font-weight: 600 !important;
     }
@@ -73,51 +73,51 @@ st.markdown("""
     /* Navigation Tabs */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background: #12151e;
+        background: #0a0a0a;
         padding: 6px;
         border-radius: 12px;
-        border: 1px solid #1e2638;
+        border: 1px solid #262626;
     }
     .stTabs [data-baseweb="tab"] {
         background: transparent;
         border-radius: 8px;
-        color: #94a3b8;
+        color: #a1a1aa;
         font-weight: 600;
         padding: 10px 22px;
         border: none !important;
         transition: all 0.2s ease;
     }
     .stTabs [aria-selected="true"] [data-baseweb="tab"] {
-        background: #0284c7 !important;
-        color: #ffffff !important;
-        font-weight: 700;
-        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-weight: 800;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
     }
     
     /* Metric Cards */
     .metric-card {
-        background: #12151e;
-        border: 1px solid #1e2638;
+        background: #0a0a0a;
+        border: 1px solid #262626;
         border-radius: 14px;
         padding: 20px;
         text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         transition: all 0.2s ease;
     }
     .metric-card:hover {
-        border-color: #0284c7;
+        border-color: #ffffff;
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(2, 132, 199, 0.15);
+        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
     }
     .metric-value {
         font-size: 2.3rem;
-        font-weight: 800;
-        color: #38bdf8;
+        font-weight: 900;
+        color: #ffffff;
         margin: 6px 0;
     }
     .metric-label {
         font-size: 0.78rem;
-        color: #94a3b8;
+        color: #a1a1aa;
         text-transform: uppercase;
         letter-spacing: 1.2px;
         font-weight: 700;
@@ -125,12 +125,12 @@ st.markdown("""
     
     /* Chart Containers */
     .chart-container {
-        background: #12151e;
-        border: 1px solid #1e2638;
+        background: #0a0a0a;
+        border: 1px solid #262626;
         border-radius: 14px;
         padding: 20px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
     .chart-title {
         color: #ffffff;
@@ -141,17 +141,17 @@ st.markdown("""
     
     /* Primary Buttons */
     .stButton > button {
-        background: #0284c7;
-        color: #ffffff;
+        background: #ffffff;
+        color: #000000;
         border: none;
         border-radius: 8px;
-        font-weight: 700;
+        font-weight: 800;
         padding: 10px 24px;
         transition: all 0.2s ease;
     }
     .stButton > button:hover {
-        background: #0369a1;
-        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+        background: #e4e4e7;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -198,7 +198,7 @@ def create_metric_card(label, value, subtext=""):
     <div class="metric-card">
         <div class="metric-label">{label}</div>
         <div class="metric-value">{value:,.0f}</div>
-        <div style="font-size: 0.8rem; color: #94a3b8;">{subtext}</div>
+        <div style="font-size: 0.8rem; color: #a1a1aa;">{subtext}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -319,7 +319,7 @@ with tab1:
             fig.update_layout(
                 template='plotly_dark',
                 height=350,
-                font=dict(color="#f1f5f9", family="Inter"),
+                font=dict(color="#f8fafc", family="Inter"),
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
                 showlegend=False,
@@ -380,7 +380,7 @@ with tab2:
                 fig.update_layout(
                     template='plotly_dark',
                     height=420,
-                    font=dict(color="#f1f5f9", family="Inter"),
+                    font=dict(color="#f8fafc", family="Inter"),
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
                     xaxis_tickangle=-45
@@ -417,7 +417,7 @@ with tab3:
         fig.update_layout(
             template='plotly_dark',
             height=420,
-            font=dict(color="#f1f5f9", family="Inter"),
+            font=dict(color="#f8fafc", family="Inter"),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
             xaxis_tickangle=-45
@@ -463,7 +463,7 @@ with tab4:
                 yaxis_title="Expression (nTPM)",
                 template='plotly_dark',
                 height=480,
-                font=dict(color="#f1f5f9", family="Inter"),
+                font=dict(color="#f8fafc", family="Inter"),
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
                 hovermode='x unified'
@@ -536,7 +536,7 @@ with tab5:
 # FOOTER
 # ============================================================================
 st.markdown("""
-<div style='text-align: center; color: #64748b; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #1e2638;'>
+<div style='text-align: center; color: #71717a; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #262626;'>
     <small>🧬 Human Protein Atlas (HPA) Gene Expression Explorer | Built with Streamlit & Plotly</small>
 </div>
 """, unsafe_allow_html=True)
