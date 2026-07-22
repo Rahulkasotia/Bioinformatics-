@@ -310,19 +310,22 @@ with tab1:
         st.markdown('<div class="chart-title">Expression Distribution Spectrum</div>', unsafe_allow_html=True)
         
         if len(numeric_cols) > 0 and len(data) > 0:
+            flat_vals = data[numeric_cols].values.flatten()
+            
+            # Colorful multi-hued histogram utilizing Plotly marker coloring
             fig = px.histogram(
-                data[numeric_cols].values.flatten(),
+                x=flat_vals,
                 nbins=25,
-                color_discrete_sequence=['#38bdf8'],
-                labels={'value': 'Expression Level', 'count': 'Frequency'}
+                labels={'x': 'Expression Level', 'y': 'Frequency'}
             )
+            fig.update_traces(marker_color=flat_vals, marker_colorscale='Turbo', showlegend=False)
+            
             fig.update_layout(
                 template='plotly_dark',
                 height=350,
                 font=dict(color="#f8fafc", family="Inter"),
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
-                showlegend=False,
                 margin=dict(l=20, r=20, t=20, b=20)
             )
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -374,7 +377,7 @@ with tab2:
                     title=f"Expression Intensity: {gene_search}",
                     labels={'x': 'Sample', 'y': 'Expression (nTPM)'},
                     color=matches.iloc[0][numeric_cols].values,
-                    color_continuous_scale='Turbo'
+                    color_continuous_scale='Rainbow'
                 )
                 
                 fig.update_layout(
@@ -443,7 +446,8 @@ with tab4:
         if genes_to_compare:
             fig = go.Figure()
             
-            colors = ['#38bdf8', '#f43f5e', '#34d399', '#fbbf24', '#c084fc']
+            # Vivid distinct neon-like colors for multi-line comparison
+            colors = ['#00ffcc', '#ff007f', '#ffe600', '#00bfff', '#ff5500', '#bf00ff']
             
             for idx, gene in enumerate(genes_to_compare):
                 gene_data = data[data.iloc[:, 0].astype(str) == gene]
@@ -454,7 +458,7 @@ with tab4:
                         mode='lines+markers',
                         name=gene,
                         marker=dict(size=8),
-                        line=dict(width=2.5, color=colors[idx % len(colors)])
+                        line=dict(width=3, color=colors[idx % len(colors)])
                     ))
             
             fig.update_layout(
