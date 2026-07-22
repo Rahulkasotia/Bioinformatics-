@@ -9,7 +9,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # ============================================================================
-# PAGE CONFIG & THEMING
+# PAGE CONFIG & THEMING (MONOCHROME / OBSIDIAN & ICE WHITE)
 # ============================================================================
 st.set_page_config(
     page_title="HPA Gene Expression Explorer",
@@ -18,107 +18,121 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS
+# Custom High-Contrast CSS
 st.markdown("""
 <style>
     body {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #09090b;
+        color: #f4f4f5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
+    /* Header Container */
     .header-container {
-        background: linear-gradient(90deg, #06b6d4 0%, #0891b2 100%);
-        padding: 2rem;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
+        padding: 2.2rem;
+        border-radius: 12px;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #3f3f46;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
     }
     
     .header-title {
-        font-size: 2.2rem;
+        font-size: 2.3rem;
         font-weight: 800;
-        color: white;
+        color: #ffffff;
         display: flex;
         align-items: center;
         gap: 15px;
         margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
     }
     
     .header-subtitle {
         font-size: 0.95rem;
-        color: rgba(255, 255, 255, 0.85);
+        color: #a1a1aa;
     }
     
+    /* Tabs Styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background: rgba(15, 23, 42, 0.4);
+        background: #18181b;
         padding: 8px 12px;
-        border-radius: 8px;
+        border-radius: 10px;
+        border: 1px solid #27272a;
     }
     
     .stTabs [data-baseweb="tab"] {
-        background: rgba(148, 163, 184, 0.1);
+        background: transparent;
         border-radius: 6px;
-        color: #cbd5e1;
+        color: #a1a1aa;
         font-weight: 600;
         padding: 10px 20px;
     }
     
     .stTabs [aria-selected="true"] [data-baseweb="tab"] {
-        background: linear-gradient(90deg, #06b6d4 0%, #0891b2 100%);
-        color: white;
+        background: #ffffff;
+        color: #09090b !important;
+        font-weight: 700;
     }
     
+    /* Metric Cards */
     .metric-card {
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid rgba(6, 182, 212, 0.2);
+        background: #18181b;
+        border: 1px solid #3f3f46;
         border-radius: 10px;
         padding: 20px;
         text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     
     .metric-value {
-        font-size: 2.2rem;
+        font-size: 2.4rem;
         font-weight: 800;
-        color: #06b6d4;
-        margin: 10px 0;
+        color: #ffffff;
+        margin: 8px 0;
+        letter-spacing: -1px;
     }
     
     .metric-label {
-        font-size: 0.85rem;
-        color: #94a3b8;
+        font-size: 0.8rem;
+        color: #a1a1aa;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
+        font-weight: 600;
     }
     
+    /* Chart Container */
     .chart-container {
-        background: rgba(15, 23, 42, 0.4);
-        border: 1px solid rgba(6, 182, 212, 0.1);
-        border-radius: 10px;
+        background: #18181b;
+        border: 1px solid #27272a;
+        border-radius: 12px;
         padding: 20px;
         margin-bottom: 20px;
     }
     
     .chart-title {
-        color: #e2e8f0;
-        font-size: 1.2rem;
+        color: #ffffff;
+        font-size: 1.1rem;
         font-weight: 700;
         margin-bottom: 15px;
     }
     
+    /* Buttons */
     .stButton > button {
-        background: linear-gradient(90deg, #06b6d4 0%, #0891b2 100%);
-        color: white;
+        background: #ffffff;
+        color: #09090b;
         border: none;
-        border-radius: 6px;
-        font-weight: 600;
-        padding: 10px 20px;
-        transition: all 0.3s ease;
+        border-radius: 8px;
+        font-weight: 700;
+        padding: 10px 22px;
+        transition: all 0.2s ease;
     }
     
     .stButton > button:hover {
-        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
-        transform: translateY(-2px);
+        background: #e4e4e7;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -170,12 +184,12 @@ if data is None:
 # ============================================================================
 
 def create_metric_card(label, value, subtext=""):
-    """Create styled metric card"""
+    """Create styled high-contrast metric card"""
     st.markdown(f"""
     <div class="metric-card">
         <div class="metric-label">{label}</div>
         <div class="metric-value">{value:,.0f}</div>
-        <div style="font-size: 0.8rem; color: #64748b;">{subtext}</div>
+        <div style="font-size: 0.8rem; color: #71717a;">{subtext}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -187,17 +201,16 @@ def create_metric_card(label, value, subtext=""):
 st.markdown("""
 <div class="header-container">
     <div class="header-title">🧬 Human Protein Atlas (HPA) Gene Expression Explorer</div>
-    <div class="header-subtitle">Compare gene expression across normal tissues and cancer cell lines | Interactive visual exploration of transcriptomic data</div>
+    <div class="header-subtitle">Compare gene expression across normal tissues and cancer cell lines | High-contrast visual transcriptomic profiling</div>
 </div>
 """, unsafe_allow_html=True)
 
 # ============================================================================
 # FILTER PANEL
 # ============================================================================
-with st.expander("🔍 **Filters & Options**", expanded=True):
+with st.expander("🔍 **Filters & Controls**", expanded=True):
     filter_cols = st.columns(4)
     
-    # Get unique values from data
     genes_list = sorted(data.iloc[:, 0].unique().astype(str))[:100] if len(data) > 0 else []
     
     with filter_cols[0]:
@@ -209,7 +222,6 @@ with st.expander("🔍 **Filters & Options**", expanded=True):
         )
     
     with filter_cols[1]:
-        # Try to get cell lines from data
         cell_lines_list = []
         for col in data.columns:
             if 'cell' in col.lower() or 'cancer' in col.lower() or 'sample' in col.lower():
@@ -230,7 +242,7 @@ with st.expander("🔍 **Filters & Options**", expanded=True):
         )
     
     with filter_cols[3]:
-        st.success(f"✅ Loaded: {status_msg}")
+        st.success(f"✅ Active: {status_msg}")
 
 # ============================================================================
 # MAIN TABS
@@ -247,7 +259,6 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 with tab1:
     st.markdown("### 📊 Dataset Overview")
     
-    # Metrics
     metric_cols = st.columns(4)
     
     with metric_cols[0]:
@@ -270,7 +281,6 @@ with tab1:
     
     st.markdown("---")
     
-    # Chart Row
     col1, col2 = st.columns(2)
     
     with col1:
@@ -282,16 +292,17 @@ with tab1:
             fig = px.histogram(
                 data[numeric_cols[0]],
                 nbins=30,
-                title="",
-                labels={'value': 'Expression Level', 'count': 'Frequency'}
+                color_discrete_sequence=['#ffffff']
             )
             fig.update_layout(
                 template='plotly_dark',
                 height=350,
-                font=dict(color="#e2e8f0"),
-                plot_bgcolor='rgba(15, 23, 42, 0.3)',
-                paper_bgcolor='rgba(0, 0, 0, 0)',
-                showlegend=False
+                font=dict(color="#f4f4f5"),
+                plot_bgcolor='#18181b',
+                paper_bgcolor='#18181b',
+                showlegend=False,
+                xaxis=dict(showgrid=False),
+                yaxis=dict(gridcolor='#27272a')
             )
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         
@@ -339,17 +350,18 @@ with tab2:
                     y=matches.iloc[0][numeric_cols].values,
                     title=f"Expression Profile: {gene_search}",
                     labels={'x': 'Sample', 'y': 'Expression (nTPM)'},
-                    color=matches.iloc[0][numeric_cols].values,
-                    color_continuous_scale='Viridis'
+                    color_discrete_sequence=['#ffffff']
                 )
                 
                 fig.update_layout(
                     template='plotly_dark',
                     height=400,
-                    font=dict(color="#e2e8f0"),
-                    plot_bgcolor='rgba(15, 23, 42, 0.3)',
-                    paper_bgcolor='rgba(0, 0, 0, 0)',
-                    xaxis_tickangle=-45
+                    font=dict(color="#f4f4f5"),
+                    plot_bgcolor='#18181b',
+                    paper_bgcolor='#18181b',
+                    xaxis_tickangle=-45,
+                    xaxis=dict(showgrid=False),
+                    yaxis=dict(gridcolor='#27272a')
                 )
                 
                 st.plotly_chart(fig, use_container_width=True)
@@ -404,22 +416,22 @@ with tab3:
                     x='Gene',
                     y='Expression',
                     title=f"Top 20 Expressed Genes",
-                    color='Expression',
-                    color_continuous_scale='Viridis'
+                    color_discrete_sequence=['#ffffff']
                 )
                 
                 fig.update_layout(
                     template='plotly_dark',
                     height=400,
-                    font=dict(color="#e2e8f0"),
-                    plot_bgcolor='rgba(15, 23, 42, 0.3)',
-                    paper_bgcolor='rgba(0, 0, 0, 0)',
-                    xaxis_tickangle=-45
+                    font=dict(color="#f4f4f5"),
+                    plot_bgcolor='#18181b',
+                    paper_bgcolor='#18181b',
+                    xaxis_tickangle=-45,
+                    xaxis=dict(showgrid=False),
+                    yaxis=dict(gridcolor='#27272a')
                 )
                 
                 st.plotly_chart(fig, use_container_width=True)
     else:
-        # Fallback if no specific 'cell' column exists: calculate top expressed genes overall
         numeric_data = data.select_dtypes(include=[np.number])
         if not numeric_data.empty:
             st.markdown("#### Top Expressed Genes Overall")
@@ -434,17 +446,18 @@ with tab3:
                 x='Gene',
                 y='Expression',
                 title="Top 20 Expressed Genes Across Samples",
-                color='Expression',
-                color_continuous_scale='Viridis'
+                color_discrete_sequence=['#ffffff']
             )
             
             fig.update_layout(
                 template='plotly_dark',
                 height=400,
-                font=dict(color="#e2e8f0"),
-                plot_bgcolor='rgba(15, 23, 42, 0.3)',
-                paper_bgcolor='rgba(0, 0, 0, 0)',
-                xaxis_tickangle=-45
+                font=dict(color="#f4f4f5"),
+                plot_bgcolor='#18181b',
+                paper_bgcolor='#18181b',
+                xaxis_tickangle=-45,
+                xaxis=dict(showgrid=False),
+                yaxis=dict(gridcolor='#27272a')
             )
             
             st.plotly_chart(fig, use_container_width=True)
@@ -472,7 +485,10 @@ with tab4:
         if len(numeric_cols) > 0:
             fig = go.Figure()
             
-            for gene in genes_to_compare:
+            # High contrast grayscale monochrome line palette
+            line_colors = ['#ffffff', '#a1a1aa', '#71717a', '#d4d4d8', '#e4e4e7']
+            
+            for idx, gene in enumerate(genes_to_compare):
                 gene_data = data[data.iloc[:, 0].astype(str) == gene]
                 if len(gene_data) > 0:
                     fig.add_trace(go.Scatter(
@@ -481,7 +497,7 @@ with tab4:
                         mode='lines+markers',
                         name=gene,
                         marker=dict(size=8),
-                        line=dict(width=2)
+                        line=dict(width=2, color=line_colors[idx % len(line_colors)])
                     ))
             
             fig.update_layout(
@@ -490,10 +506,12 @@ with tab4:
                 yaxis_title="Expression (nTPM)",
                 template='plotly_dark',
                 height=500,
-                font=dict(color="#e2e8f0"),
-                plot_bgcolor='rgba(15, 23, 42, 0.3)',
-                paper_bgcolor='rgba(0, 0, 0, 0)',
-                hovermode='x unified'
+                font=dict(color="#f4f4f5"),
+                plot_bgcolor='#18181b',
+                paper_bgcolor='#18181b',
+                hovermode='x unified',
+                xaxis=dict(showgrid=False),
+                yaxis=dict(gridcolor='#27272a')
             )
             
             st.plotly_chart(fig, use_container_width=True)
@@ -558,9 +576,9 @@ with tab5:
 # FOOTER
 # ============================================================================
 st.markdown("""
-<div style='text-align: center; color: #64748b; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(6, 182, 212, 0.1);'>
+<div style='text-align: center; color: #71717a; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #27272a;'>
     <small>🧬 Human Protein Atlas (HPA) Gene Expression Explorer | Built with Streamlit & Plotly</small>
     <br>
-    <small>Compare normal tissue vs cancer cell line expression | Interactive transcriptomic data visualization</small>
+    <small>Compare normal tissue vs cancer cell line expression | Monochromatic transcriptomic data visualization</small>
 </div>
 """, unsafe_allow_html=True)
