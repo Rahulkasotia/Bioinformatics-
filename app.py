@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Pure Black/White UI & Custom Multi-select Focus Borders
+# Custom CSS for Sleek Black UI & Clean Multi-select Styling
 st.markdown("""
 <style>
     /* Main Background */
@@ -233,55 +233,53 @@ with st.expander("🔍 **Global Filter Controls & Reset**", expanded=True):
     filter_cols = st.columns(4)
     
     with filter_cols[0]:
-        st.markdown("**🧬 Filter Genes**")
+        selected_genes = st.multiselect(
+            "🧬 Filter Genes",
+            options=all_genes,
+            default=all_genes[:5] if len(all_genes) >= 5 else all_genes,
+            key="gene_filter",
+            help="Type to search or select options."
+        )
         col_g1, col_g2 = st.columns(2)
         with col_g1:
             if st.button("Select All", key="all_genes_btn", use_container_width=True):
                 st.session_state.gene_filter = all_genes
+                st.rerun()
         with col_g2:
             if st.button("Clear All", key="clear_genes_btn", use_container_width=True):
                 st.session_state.gene_filter = []
-                
-        selected_genes = st.multiselect(
-            "Select specific genes:",
-            options=all_genes,
-            default=all_genes[:5] if len(all_genes) >= 5 else all_genes,
-            key="gene_filter",
-            label_visibility="collapsed"
-        )
+                st.rerun()
     
     with filter_cols[1]:
-        st.markdown("**🧫 Filter Samples**")
+        selected_samples = st.multiselect(
+            "🧫 Filter Samples",
+            options=numeric_cols_all,
+            default=numeric_cols_all[:10] if len(numeric_cols_all) >= 10 else numeric_cols_all,
+            key="sample_filter",
+            help="Type to search or select options."
+        )
         col_s1, col_s2 = st.columns(2)
         with col_s1:
             if st.button("Select All", key="all_samples_btn", use_container_width=True):
                 st.session_state.sample_filter = numeric_cols_all
+                st.rerun()
         with col_s2:
             if st.button("Clear All", key="clear_samples_btn", use_container_width=True):
                 st.session_state.sample_filter = []
-                
-        selected_samples = st.multiselect(
-            "Select specific samples:",
-            options=numeric_cols_all,
-            default=numeric_cols_all[:10] if len(numeric_cols_all) >= 10 else numeric_cols_all,
-            key="sample_filter",
-            label_visibility="collapsed"
-        )
+                st.rerun()
     
     with filter_cols[2]:
-        st.markdown("**📈 Min Expression**")
         min_expression = st.slider(
-            "Min Expression Value",
+            "📈 Min Expression Value",
             float(0.0), 
             float(raw_data[numeric_cols_all].max().max() if numeric_cols_all else 100.0), 
             float(0.0), 
-            0.5,
-            label_visibility="collapsed"
+            0.5
         )
     
     with filter_cols[3]:
         st.markdown("**⚡ Quick Actions**")
-        st.write("") # spacing alignment
+        st.write("") 
         if st.button("🔄 Reset All Filters", key="reset_all_btn", use_container_width=True):
             st.session_state.gene_filter = all_genes
             st.session_state.sample_filter = numeric_cols_all
