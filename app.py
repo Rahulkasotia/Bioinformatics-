@@ -124,14 +124,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# DATA LOADING (AUTO-SCAN FOR EXCEL FILES)
+# DATA LOADING (CLEANED OF CACHE REPLAY UI CALLS)
 # ============================================================================
 
 @st.cache_data
 def load_hpa_data():
-    """Dynamically find and load any Excel file in the working directory"""
+    """Dynamically find and load any Excel file in the working directory (pure data logic)"""
     try:
-        # Search recursively for any .xlsx file in root or mount directory
         search_dirs = [Path("."), Path("/mount/src")]
         excel_files = []
         
@@ -140,32 +139,30 @@ def load_hpa_data():
                 excel_files.extend(list(search_dir.rglob("*.xlsx")))
         
         if not excel_files:
-            st.error("❌ Could not find any .xlsx Excel file in the repository.")
-            st.info(f"📁 Files present in directory: {os.listdir('.')}")
-            return None
+            return None, "No .xlsx files found in the repository root directory."
         
-        # Pick the first detected .xlsx file
         target_file = excel_files[0]
-        st.toast(f"✅ Loaded dataset: {target_file.name}")
         
         # Parse Excel with openpyxl engine
         data = pd.read_excel(target_file, engine='openpyxl')
         
+        if data.empty:
+            return None, f"File '{target_file.name}' was found, but it contains 0 rows/data."
+        
         # Standardize column names
         data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
         
-        print(f"✅ Successfully loaded {target_file.name}: {data.shape[0]:,} rows, {data.shape[1]} columns")
-        return data
+        return data, target_file.name
     
     except Exception as e:
-        st.error(f"❌ Error loading data: {str(e)}")
-        return None
+        return None, str(e)
 
 # Load data at startup
-data = load_hpa_data()
+data, status_msg = load_hpa_data()
 
 if data is None:
-    st.error("⚠️ Application cannot start without data. Please ensure an Excel file (.xlsx) is uploaded to GitHub.")
+    st.error(f"❌ Error loading dataset: {status_msg}")
+    st.info(f"📁 Files detected in current directory: {os.listdir('.')}")
     st.stop()
 
 # ============================================================================
@@ -233,7 +230,7 @@ with st.expander("🔍 **Filters & Options**", expanded=True):
         )
     
     with filter_cols[3]:
-        st.info("✅ Data Loaded Successfully")
+        st.success(f"✅ Loaded: {status_msg}")
 
 # ============================================================================
 # MAIN TABS
