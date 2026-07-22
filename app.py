@@ -9,7 +9,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # ============================================================================
-# PAGE CONFIG & LIGHT HIGH-CONTRAST THEME
+# PAGE CONFIG & MODERN CLEAN LIGHT THEME
 # ============================================================================
 st.set_page_config(
     page_title="HPA Gene Expression Explorer",
@@ -18,82 +18,103 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for crisp White / Light Gray UI
+# Custom CSS for crisp, executive-grade light UI
 st.markdown("""
 <style>
-    /* Main App Light Background */
+    /* Main Background */
     .stApp {
         background-color: #f8fafc;
         color: #0f172a;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     
-    /* Header Styling */
+    /* Header Card */
     .header-container {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        padding: 2rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        padding: 2rem 2.5rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
     }
     .header-title {
         font-size: 2.2rem;
         font-weight: 800;
         color: #0f172a;
-        margin-bottom: 0.4rem;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.3rem;
     }
     .header-subtitle {
         font-size: 0.95rem;
         color: #64748b;
     }
     
-    /* Navigation Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        background: #e2e8f0;
-        padding: 8px;
-        border-radius: 10px;
+    /* Expander / Filter Panel Fixes */
+    div[data-testid="stExpander"] {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 14px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
+    }
+    div[data-testid="stExpander"] summary {
+        color: #0f172a !important;
+        font-weight: 700 !important;
     }
     
+    /* Custom Styling for Select Chips */
+    span[data-baseweb="tag"] {
+        background-color: #e0e7ff !important;
+        color: #3730a3 !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Navigation Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background: #e2e8f0;
+        padding: 6px;
+        border-radius: 12px;
+    }
     .stTabs [data-baseweb="tab"] {
         background: transparent;
         border-radius: 8px;
         color: #475569;
         font-weight: 600;
-        padding: 10px 20px;
-        transition: all 0.3s ease;
+        padding: 10px 22px;
+        border: none !important;
+        transition: all 0.2s ease;
     }
-    
     .stTabs [aria-selected="true"] [data-baseweb="tab"] {
-        background: #2563eb !important;
+        background: #4f46e5 !important;
         color: #ffffff !important;
         font-weight: 700;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
     }
     
     /* Metric Cards */
     .metric-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 22px;
+        border-radius: 14px;
+        padding: 20px;
         text-align: center;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-        transition: transform 0.2s ease, border-color 0.2s ease;
+        transition: all 0.2s ease;
     }
     .metric-card:hover {
-        border-color: #2563eb;
+        border-color: #6366f1;
         transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.08);
     }
     .metric-value {
-        font-size: 2.4rem;
+        font-size: 2.3rem;
         font-weight: 800;
-        color: #2563eb;
-        margin: 8px 0;
+        color: #4f46e5;
+        margin: 6px 0;
     }
     .metric-label {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         color: #64748b;
         text-transform: uppercase;
         letter-spacing: 1.2px;
@@ -104,27 +125,21 @@ st.markdown("""
     .chart-container {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 20px;
         margin-bottom: 20px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
     .chart-title {
         color: #0f172a;
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         font-weight: 700;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
     
-    /* Filter Controls Styling */
-    .stExpander {
-        background: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 12px !important;
-    }
-    
+    /* Primary Buttons */
     .stButton > button {
-        background: #2563eb;
+        background: #4f46e5;
         color: #ffffff;
         border: none;
         border-radius: 8px;
@@ -133,8 +148,8 @@ st.markdown("""
         transition: all 0.2s ease;
     }
     .stButton > button:hover {
-        background: #1d4ed8;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        background: #4338ca;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -171,7 +186,6 @@ def load_hpa_data():
     except Exception as e:
         return None, str(e)
 
-# Load raw data at startup
 raw_data, status_msg = load_hpa_data()
 
 if raw_data is None:
@@ -179,7 +193,6 @@ if raw_data is None:
     st.info(f"📁 Files detected in current directory: {os.listdir('.')}")
     st.stop()
 
-# Helper function
 def create_metric_card(label, value, subtext=""):
     st.markdown(f"""
     <div class="metric-card">
@@ -221,7 +234,7 @@ with st.expander("🔍 **Global Filter Controls**", expanded=True):
         selected_samples = st.multiselect(
             "🧫 Filter Samples / Columns",
             options=numeric_cols_all,
-            default=numeric_cols_all,
+            default=numeric_cols_all[:10] if len(numeric_cols_all) >= 10 else numeric_cols_all,
             key="sample_filter"
         )
     
@@ -242,17 +255,14 @@ with st.expander("🔍 **Global Filter Controls**", expanded=True):
 # ============================================================================
 data = raw_data.copy()
 
-# 1. Filter by Gene Selection
 if selected_genes:
     data = data[data.iloc[:, 0].astype(str).isin(selected_genes)]
 
-# 2. Filter Column Samples
 gene_col = [data.columns[0]]
 if selected_samples:
     keep_cols = gene_col + [c for c in selected_samples if c in data.columns]
     data = data[keep_cols]
 
-# 3. Filter by Min Expression Value
 numeric_cols = data.select_dtypes(include=[np.number]).columns
 if len(numeric_cols) > 0 and min_expression > 0:
     data = data[(data[numeric_cols] >= min_expression).any(axis=1)]
@@ -302,18 +312,18 @@ with tab1:
         if len(numeric_cols) > 0 and len(data) > 0:
             fig = px.histogram(
                 data[numeric_cols].values.flatten(),
-                nbins=30,
-                color_discrete_sequence=['#2563eb'],
+                nbins=25,
+                color_discrete_sequence=['#4f46e5'],
                 labels={'value': 'Expression Level', 'count': 'Frequency'}
             )
             fig.update_layout(
                 template='plotly_white',
                 height=350,
-                font=dict(color="#0f172a"),
+                font=dict(color="#0f172a", family="Inter"),
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
                 showlegend=False,
-                transition_duration=300
+                margin=dict(l=20, r=20, t=20, b=20)
             )
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         else:
@@ -327,7 +337,7 @@ with tab1:
         
         if len(numeric_cols) > 0 and len(data) > 0:
             summary_stats = data[numeric_cols].describe().T.round(2)
-            st.dataframe(summary_stats, use_container_width=True, height=300)
+            st.dataframe(summary_stats, use_container_width=True, height=350)
         else:
             st.warning("No data available.")
             
@@ -370,11 +380,10 @@ with tab2:
                 fig.update_layout(
                     template='plotly_white',
                     height=420,
-                    font=dict(color="#0f172a"),
+                    font=dict(color="#0f172a", family="Inter"),
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
-                    xaxis_tickangle=-45,
-                    transition_duration=300
+                    xaxis_tickangle=-45
                 )
                 
                 st.plotly_chart(fig, use_container_width=True)
@@ -402,17 +411,16 @@ with tab3:
             y='Expression',
             title="Top Expressed Genes",
             color='Expression',
-            color_continuous_scale='Plasma'
+            color_continuous_scale='Cividis'
         )
         
         fig.update_layout(
             template='plotly_white',
             height=420,
-            font=dict(color="#0f172a"),
+            font=dict(color="#0f172a", family="Inter"),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            xaxis_tickangle=-45,
-            transition_duration=300
+            xaxis_tickangle=-45
         )
         
         st.plotly_chart(fig, use_container_width=True)
@@ -435,7 +443,7 @@ with tab4:
         if genes_to_compare:
             fig = go.Figure()
             
-            colors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea']
+            colors = ['#4f46e5', '#e11d48', '#059669', '#d97706', '#9333ea']
             
             for idx, gene in enumerate(genes_to_compare):
                 gene_data = data[data.iloc[:, 0].astype(str) == gene]
@@ -446,7 +454,7 @@ with tab4:
                         mode='lines+markers',
                         name=gene,
                         marker=dict(size=8),
-                        line=dict(width=3, color=colors[idx % len(colors)])
+                        line=dict(width=2.5, color=colors[idx % len(colors)])
                     ))
             
             fig.update_layout(
@@ -454,12 +462,11 @@ with tab4:
                 xaxis_title="Sample",
                 yaxis_title="Expression (nTPM)",
                 template='plotly_white',
-                height=500,
-                font=dict(color="#0f172a"),
+                height=480,
+                font=dict(color="#0f172a", family="Inter"),
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
-                hovermode='x unified',
-                transition_duration=300
+                hovermode='x unified'
             )
             
             st.plotly_chart(fig, use_container_width=True)
