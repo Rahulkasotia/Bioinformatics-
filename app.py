@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 from pathlib import Path
+import os
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -123,43 +124,37 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# DATA LOADING
+# DATA LOADING (AUTO-SCAN FOR EXCEL FILES)
 # ============================================================================
 
 @st.cache_data
 def load_hpa_data():
-    """Load HPA data from Excel file"""
+    """Dynamically find and load any Excel file in the working directory"""
     try:
-        excel_file = 'Normal_Vs_Cancer_data.xlsx'
+        # Search recursively for any .xlsx file in root or mount directory
+        search_dirs = [Path("."), Path("/mount/src")]
+        excel_files = []
         
-        # Comprehensive path list for local and Streamlit Cloud environments
-        possible_paths = [
-            excel_file,
-            f'/mount/src/bioinformatics-/{excel_file}',
-            f'/mount/src/biocia/{excel_file}',
-            f'./{excel_file}',
-            Path(excel_file)
-        ]
+        for search_dir in search_dirs:
+            if search_dir.exists():
+                excel_files.extend(list(search_dir.rglob("*.xlsx")))
         
-        data = None
-        for path in possible_paths:
-            try:
-                if Path(path).exists():
-                    # Explicitly use openpyxl engine to parse .xlsx
-                    data = pd.read_excel(path, engine='openpyxl')
-                    break
-            except Exception as e:
-                print(f"Failed path {path}: {e}")
-                continue
-        
-        if data is None:
-            st.error("❌ Could not find Excel file. Please ensure 'Normal_Vs_Cancer_data.xlsx' is in the project directory.")
+        if not excel_files:
+            st.error("❌ Could not find any .xlsx Excel file in the repository.")
+            st.info(f"📁 Files present in directory: {os.listdir('.')}")
             return None
+        
+        # Pick the first detected .xlsx file
+        target_file = excel_files[0]
+        st.toast(f"✅ Loaded dataset: {target_file.name}")
+        
+        # Parse Excel with openpyxl engine
+        data = pd.read_excel(target_file, engine='openpyxl')
         
         # Standardize column names
         data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')
         
-        print(f"✅ Loaded Excel: {data.shape[0]:,} rows, {data.shape[1]} columns")
+        print(f"✅ Successfully loaded {target_file.name}: {data.shape[0]:,} rows, {data.shape[1]} columns")
         return data
     
     except Exception as e:
@@ -170,7 +165,7 @@ def load_hpa_data():
 data = load_hpa_data()
 
 if data is None:
-    st.error("⚠️ Application cannot start without data. Please check the Excel file.")
+    st.error("⚠️ Application cannot start without data. Please ensure an Excel file (.xlsx) is uploaded to GitHub.")
     st.stop()
 
 # ============================================================================
